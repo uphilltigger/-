@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<!--<meta charset="UTF-8">-->
+<meta charset="UTF-8">
 <title>量変えるとき用</title>
 <style>
-body { margin:0; padding:2rem; background:#ffffff; width: 90%;}
-.container { display:flex; gap:2rem; }
-.column { flex:1; }
+body { margin:0; padding:2rem; background:#ffffff; width: 90%;;}
+.container { display:flex; gap:2rem; flex-wrap:wrap; }
+.column { flex:1; min-width:300px; }
 table { border-collapse:collapse; width:100%; max-width:600px; margin-bottom:1rem;}
 th, td { border:1px solid #ccc; padding:0.3rem; text-align:center; vertical-align:middle; }
 thead { background:#eee; }
@@ -14,33 +14,14 @@ input { width:60px; text-align:right; }
 .bar-container { width:100px; height:16px; background:#eee; border-radius:8px; overflow:hidden; display:inline-block; vertical-align:left;}
 .bar-fill { height:100%; width:0%; border-radius:8px;}
 .copy-switch { margin-bottom:0.5rem; }
-a{color: blue;}
+a {color: blue; text-decoration: underline;}
 a:active{color : red;}
 </style>
 </head>
 <body>
 
 <h1>量変えるとき用</h1>
-<br><p>
-	<a href="https://uphilltigger.github.io/-2/" target="_blank">普段はこっち使って～</a>
-	<br>
-<details>
-  <summary style="text-decoration: underline; color: blue;">説明を見る</summary>
-  <div>
-	＜各値＞<br>
-	青＝不足，緑＝理想，赤＝過剰<br>
-	<br>
-	＜運動強度＞<br>
-	無＝積雪期<br>
-	軽＝春先，馬場凍結前<br>
-	中＝普段<br>
-	強＝真夏<br>
-	<br>
-	DE＝エネルギー<br>
-	CP＝タンパク質<br>
-	この2つと下の表の3つの値が正常ならとりあえず大丈夫．
-</div></p>
-</details>
+<p><a href="https://uphilltigger.github.io/-2/" target="_blank">普段はこちらを使用</a></p>
 
 <div class="container">
   <!-- 左側 -->
@@ -61,43 +42,45 @@ a:active{color : red;}
         <option value="強">強</option>
       </select>
     </label>
-    <div class="table-container">
-      <table id="feed-table-left">
-        <thead><tr><th>飼料名</th><th>朝夕</th><th>昼夜</th><th>合計</th></tr></thead>
-        <tbody id="feed-body-left"></tbody>
-      </table>
-    </div>
-    <div class="table-container" id="result-left"></div>
-    <div class="table-container" id="result-balance-left"></div>
+    <table>
+      <thead><tr><th>飼料名</th><th>朝夕</th><th>昼夜</th><th>合計</th></tr></thead>
+      <tbody id="feed-body-left"></tbody>
+    </table>
+    <div id="result-left"></div>
+    <div id="result-balance-left"></div>
   </div>
-
-<!-- 右側 -->
-<div class="column" id="right-column">
-  <h2>After</h2>
-  <label class="copy-switch">
-    <input type="checkbox" id="copy-left"> Beforeの値をコピーする
-  </label>
-  <div class="table-container">
-    <table id="feed-table-right">
+  <!-- 右側 -->
+  <div class="column" id="right-column">
+    <h2>After</h2>
+    <label>運動強度：
+      <select id="work-right">
+        <option value="無">無</option>
+        <option value="軽">軽</option>
+        <option value="中" selected>中</option>
+        <option value="強">強</option>
+      </select>
+    </label>
+    <table>
       <thead><tr><th>飼料名</th><th>朝夕</th><th>昼夜</th><th>合計</th></tr></thead>
       <tbody id="feed-body-right"></tbody>
     </table>
+    <div id="result-right"></div>
+    <div id="result-balance-right"></div>
   </div>
-  <div class="table-container" id="result-right"></div>
-  <div class="table-container" id="result-balance-right"></div>
 </div>
+
 <script>
 // 飼料データ
 const feeds = [
-  {name:"ビート", DE:2.85, CP:109.00, Lys:7.20, Ca:5.11, P:0.78, Mg:2.68, Na:1.04, K:4.16, Fe:519.60, Cu:9.27, Zn:27.71, Mn:53.69, Se:0.00, Co:0.20, VA:0.00, VD:0.00, VE:0.00, default1:"", default2:""},
-  {name:"燕麦", DE:2.76, CP:106.58, Lys:5.60, Ca:0.45, P:3.01, Mg:1.22, Na:0.34, K:3.55, Fe:44.01, Cu:3.52, Zn:31.60, Mn:45.61, Se:0.05, Co:0.11, VA:5, VD:0.00, VE:4, default1:"", default2:0.7},
-  {name:"キューブ", DE:1.80, CP:147.00, Lys:0.00, Ca:11.80, P:2.60, Mg:2.60, Na:1.60, K:22.40, Fe:446.00, Cu:8.20, Zn:24.00, Mn:34.80, Se:0.00, Co:1.52, VA:0.00, VD:0.00, VE:0.00, default1:"", default2:""},
-  {name:"大豆粕", DE:13.13, CP:461.00, Lys:28.30, Ca:2.90, P:6.20, Mg:3.20, Na:0.30, K:0.00, Fe:0.00, Cu:18.00, Zn:56.00, Mn:0.00, Se:0.45, Co:0.00, VA:0.00, VD:0.00, VE:0.00, default1:"", default2:""},
-  {name:"ベルテ", DE:2.52, CP:184.8, Lys:9.90, Ca:13.40, P:24.20, Mg:2.50, Na:12.00, K:13.40, Fe:563.42, Cu:133.63, Zn:331.66, Mn:206.02, Se:0.00, Co:0.53, VA:45866, VD:4080, VE:688, default1:"", default2:""},
-  {name:"濃厚", DE:3.12, CP:144.00, Lys:7.00, Ca:31.00, P:12.30, Mg:2.20, Na:9.30, K:9.80, Fe:340.01, Cu:88.69, Zn:219.27, Mn:153.67, Se:1.21, Co:0.54, VA:29, VD:3, VE:865, default1:"", default2:""},
-  {name:"ふすま", DE:2.68, CP:157.00, Lys:6.30, Ca:1.20, P:9.80, Mg:4.40, Na:0.80, K:0.00, Fe:0.00, Cu:11.00, Zn:70.00, Mn:0.00, Se:0.00, Co:0.00, VA:0.00, VD:0.00, VE:0.00, default1:"", default2:0.4},
-  {name:"塩", DE:0.00, CP:0.00, Lys:0.00, Ca:0.30, P:0.00, Mg:0.00, Na:392.00, K:0.00, Fe:0.00, Cu:0.00, Zn:0.00, Mn:0.00, Se:0.00, Co:0.00, VA:0.00, VD:0.00, VE:0.00, default1:0.01, default2:0.01},
-  {name:"乾草", DE:1.35, CP:57.00, Lys:2.70, Ca:0.00, P:0.00, Mg:0.00, Na:0.00, K:0.00, Fe:81.30, Cu:7.07, Zn:21.95, Mn:94.31, Se:0.00, Co:0.03, VA:0.00, VD:0.00, VE:75, default1:1, default2:1}
+  {name:"ビート", DE:2.85, CP:109.00, Lys:7.20, Ca:5.11, P:0.78, Mg:2.68, Na:1.04, K:4.16, Fe:519.60, Cu:9.27, Zn:27.71, Mn:53.69, Se:0.00, Co:0.20, VA:0, VD:0, VE:0, default1:0, default2:0},
+  {name:"燕麦", DE:2.76, CP:106.58, Lys:5.60, Ca:0.45, P:3.01, Mg:1.22, Na:0.34, K:3.55, Fe:44.01, Cu:3.52, Zn:31.60, Mn:45.61, Se:0.05, Co:0.11, VA:5, VD:0, VE:4, default1:0, default2:0.7},
+  {name:"キューブ", DE:1.80, CP:147.00, Lys:0.00, Ca:11.80, P:2.60, Mg:2.60, Na:1.60, K:22.40, Fe:446.00, Cu:8.20, Zn:24.00, Mn:34.80, Se:0.00, Co:1.52, VA:0, VD:0, VE:0, default1:0, default2:0},
+  {name:"大豆粕", DE:13.13, CP:461.00, Lys:28.30, Ca:2.90, P:6.20, Mg:3.20, Na:0.30, K:0.00, Fe:0.00, Cu:18.00, Zn:56.00, Mn:0.00, Se:0.45, Co:0.00, VA:0, VD:0, VE:0, default1:0, default2:0},
+  {name:"ベルテ", DE:2.52, CP:184.8, Lys:9.90, Ca:13.40, P:24.20, Mg:2.50, Na:12.00, K:13.40, Fe:563.42, Cu:133.63, Zn:331.66, Mn:206.02, Se:0.00, Co:0.53, VA:45866, VD:4080, VE:688, default1:0, default2:0},
+  {name:"濃厚", DE:3.12, CP:144.00, Lys:7.00, Ca:31.00, P:12.30, Mg:2.20, Na:9.30, K:9.80, Fe:340.01, Cu:88.69, Zn:219.27, Mn:153.67, Se:1.21, Co:0.54, VA:29, VD:3, VE:865, default1:0, default2:0},
+  {name:"ふすま", DE:2.68, CP:157.00, Lys:6.30, Ca:1.20, P:9.80, Mg:4.40, Na:0.80, K:0.00, Fe:0.00, Cu:11.00, Zn:70.00, Mn:0.00, Se:0.00, Co:0.00, VA:0, VD:0, VE:0, default1:0, default2:0.4},
+  {name:"塩", DE:0.00, CP:0.00, Lys:0.00, Ca:0.30, P:0.00, Mg:0.00, Na:392.00, K:0.00, Fe:0.00, Cu:0.00, Zn:0.00, Mn:0.00, Se:0.00, Co:0.00, VA:0, VD:0, VE:0, default1:0.01, default2:0.01},
+  {name:"乾草", DE:1.35, CP:57.00, Lys:2.70, Ca:0.00, P:0.00, Mg:0.00, Na:0.00, K:0.00, Fe:81.30, Cu:7.07, Zn:21.95, Mn:94.31, Se:0.00, Co:0.03, VA:0, VD:0, VE:75, default1:1, default2:1}
 ];
 
 // 要求量データ
@@ -136,7 +119,9 @@ function createRows(containerId){
     const total = row.querySelector(".feed-total");
 
     function updateTotal(){
-      total.value = ((parseFloat(input1.value||0)+parseFloat(input2.value||0))*2).toFixed(2);
+      const val1 = parseFloat(input1.value) || 0;
+      const val2 = parseFloat(input2.value) || 0;
+      total.value = (val1 + val2).toFixed(2); // 合計は単純に足す
       calculate();
     }
 
@@ -146,38 +131,25 @@ function createRows(containerId){
   });
 }
 
-// 左→右コピー
-function copyLeftToRight(){
-  const copy = document.getElementById("copy-left").checked;
-  if(copy){
-    document.querySelectorAll("#feed-body-left tr").forEach((rowLeft, i)=>{
-      const rowRight = document.querySelectorAll("#feed-body-right tr")[i];
-      rowRight.querySelector(".feed-amount1").value = rowLeft.querySelector(".feed-amount1").value;
-      rowRight.querySelector(".feed-amount2").value = rowLeft.querySelector(".feed-amount2").value;
-      rowRight.querySelector(".feed-total").value = rowLeft.querySelector(".feed-total").value;
-    });
-  }
-}
-
-// 栄養計算
+// 計算関数
 function calculate(){
   const weightLeft = parseInt(document.getElementById("weight-left").value);
   const workLeft = document.getElementById("work-left").value;
+  const workRight = document.getElementById("work-right").value;
 
   ["left","right"].forEach(side=>{
     let sum = {DE:0, CP:0, Lys:0, Ca:0, P:0, Mg:0, Na:0, K:0, Fe:0, Cu:0, Zn:0, Mn:0, Se:0, Co:0, VA:0, VD:0, VE:0};
     let totalFeed = 0;
 
     document.querySelectorAll(`#feed-body-${side} tr`).forEach((tr,i)=>{
-      const total = parseFloat(tr.querySelector(".feed-total").value||0);
+      const total = parseFloat(tr.querySelector(".feed-total").value || 0);
       totalFeed += total;
       const feed = feeds[i];
-      for(const key in sum) sum[key]+=feed[key]*total;
+      for(const key in sum) sum[key] += feed[key]*total;
     });
 
-    // 右側は左の値を使用
-    const weight = weightLeft;
-    const work = workLeft;
+    const weight = weightLeft; // 体重は左と同じ
+    const work = (side==="left") ? workLeft : workRight;
     const req = getRequirements(weight, work);
 
     const ca_p = sum["Ca"] / sum["P"];
@@ -191,15 +163,14 @@ function calculate(){
     // 栄養素テーブル
     let html = "<table><thead><tr><th>栄養素</th><th>要求量</th><th>給餌量</th><th>充足率</th><th></th></tr></thead><tbody>";
     for(const key in sum){
-      const rate = (sum[key]/req[key]*100);
-      const rateText = rate.toFixed(1);
-      const color = (rate>120?"red":(rate<80?"blue":"green"));
+      const rate = sum[key]/req[key]*100;
+      const color = rate>120?"red":rate<80?"blue":"green";
       html += `<tr>
         <td>${key}</td>
         <td style="text-align:right">${req[key]}</td>
         <td style="text-align:right">${sum[key].toFixed(2)}</td>
         <td><div class="bar-container"><div class="bar-fill" style="width:${Math.min(rate,150)}%;background:${color}"></div></div></td>
-        <td style="color:${color}; text-align:right">${rateText}%</td>
+        <td style="color:${color}; text-align:right">${rate.toFixed(1)}%</td>
       </tr>`;
     }
     html += "</tbody></table>";
@@ -216,9 +187,6 @@ function calculate(){
     </table>`;
     document.getElementById(`result-balance-${side}`).innerHTML = htmlbalance;
   });
-
-  // コピーONなら右に反映
-  copyLeftToRight();
 }
 
 // 初期化
@@ -228,16 +196,11 @@ window.onload = () => {
   calculate();
 };
 
-// 左側イベント
+// イベント
 document.getElementById("weight-left").onchange = calculate;
 document.getElementById("work-left").onchange = calculate;
+document.getElementById("work-right").onchange = calculate;
 
-// 左→右コピーイベント
-document.getElementById("copy-left").onchange = calculate;
 </script>
 </body>
 </html>
-
-
-
-
