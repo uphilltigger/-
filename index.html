@@ -19,10 +19,8 @@ a:active{color : red;}
 </style>
 </head>
 <body>
-
 <h1>量変えるとき用</h1>
 <p><a href="https://uphilltigger.github.io/-2/" target="_blank">普段はこちらを使用</a></p>
-
 <div class="container">
   <!-- 左側 -->
   <div class="column" id="left-column">
@@ -68,7 +66,6 @@ a:active{color : red;}
     <div id="result-balance-right"></div>
   </div>
 </div>
-
 <script>
 // 飼料データ
 const feeds = [
@@ -82,7 +79,6 @@ const feeds = [
   {name:"塩", DE:0.00, CP:0.00, Lys:0.00, Ca:0.30, P:0.00, Mg:0.00, Na:392.00, K:0.00, Fe:0.00, Cu:0.00, Zn:0.00, Mn:0.00, Se:0.00, Co:0.00, VA:0, VD:0, VE:0, default1:0.01, default2:0.01},
   {name:"乾草", DE:1.35, CP:57.00, Lys:2.70, Ca:0.00, P:0.00, Mg:0.00, Na:0.00, K:0.00, Fe:81.30, Cu:7.07, Zn:21.95, Mn:94.31, Se:0.00, Co:0.03, VA:0, VD:0, VE:75, default1:1, default2:1}
 ];
-
 // 要求量データ
 const reqTable = [
   {weight:500, work:"無", DE:16.4, CP:656, Lys:28.21, Ca:20, P:14, Mg:7.5, Na:10, K:25, Fe:400, Cu:150, Zn:450, Mn:450, Se:1.88, Co:0.5, VA:20000, VD:3300, VE:800},
@@ -204,3 +200,4 @@ document.getElementById("work-right").onchange = calculate;
 </script>
 </body>
 </html>
+
