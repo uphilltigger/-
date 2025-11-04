@@ -142,7 +142,7 @@ function createRows(containerId){
     function updateTotal(){
       const val1 = parseFloat(input1.value) || 0;
       const val2 = parseFloat(input2.value) || 0;
-      total.value = (val1 + val2)*2.toFixed(2); // 合計
+      total.value = ((val1 + val2)*2).toFixed(2); // 合計
       calculate();
     }
 
@@ -225,6 +225,7 @@ document.getElementById("work-right").onchange = calculate;
 </script>
 </body>
 </html>
+
 
 
 
